@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Email Verification - Truist Bank Limited</title>
+  <style>
+    body {font-family: Roboto, sans-serif; background:#0a1d3f; color:white; text-align:center; padding:100px;}
+    .box {background:#142c5c; padding:40px; border-radius:12px; display:inline-block; max-width:400px;}
+    h2 {color:#c49a2f; margin-bottom:20px;}
+    p {margin:10px 0;}
+    a {color:#ffba00; text-decoration:none;}
+    input, button {
+      padding:10px; margin:8px 0; border:none; border-radius:6px; width:100%;
+    }
+    button {background:#c49a2f; color:#000; font-weight:bold; cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="box" id="statusBox">
+    <h2>Verifying...</h2>
+    <p>Please wait while we confirm your request.</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getAuth, applyActionCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+    // 🔹 Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBc6wgX4Pg9BvcjS4A1-0TTdiNZZZ3aDhA",
+      authDomain: "truist-bank-credit-union.firebaseapp.com",
+      projectId: "truist-bank-credit-union",
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 🔹 Translations
+    const translations = {
+      en: {
+        verifying: "Verifying...",
+        wait: "Please wait while we confirm your request.",
+        success: "✅ Email Verified",
+        active: "Your Truist Bank account is now active.",
+        fail: "❌ Verification Failed",
+        expired: "This link may be invalid or expired.",
+        missing: "⚠️ Missing Code",
+        noCode: "No verification code found in the link.",
+        login: "Go to Login",
+        back: "Back to Login",
+        reset: "Reset Password",
+        newPass: "Enter New Password",
+        done: "Password reset successful!",
+        recover: "Email Recovery",
+        recovered: "Your email has been restored. Redirecting..."
+      },
+      fr: {
+        verifying: "Vérification...",
+        wait: "Veuillez patienter pendant que nous confirmons votre demande.",
+        success: "✅ E-mail vérifié",
+        active: "Votre compte Truist Bank est maintenant actif.",
+        fail: "❌ Échec de la vérification",
+        expired: "Ce lien peut être invalide ou expiré.",
+        missing: "⚠️ Code manquant",
+        noCode: "Aucun code de vérification trouvé dans le lien.",
+        login: "Aller à la connexion",
+        back: "Retour à la connexion",
+        reset: "Réinitialiser le mot de passe",
+        newPass: "Entrez un nouveau mot de passe",
+        done: "Réinitialisation réussie !",
+        recover: "Récupération d'e-mail",
+        recovered: "Votre e-mail a été restauré. Redirection..."
+      },
+      es: {
+        verifying: "Verificando...",
+        wait: "Por favor, espere mientras confirmamos su solicitud.",
+        success: "✅ Correo verificado",
+        active: "Su cuenta de Truist Bank ahora está activa.",
+        fail: "❌ Fallo de verificación",
+        expired: "Este enlace puede ser inválido o haber expirado.",
+        missing: "⚠️ Código faltante",
+        noCode: "No se encontró código de verificación en el enlace.",
+        login: "Ir a iniciar sesión",
+        back: "Volver al inicio de sesión",
+        reset: "Restablecer contraseña",
+        newPass: "Ingrese nueva contraseña",
+        done: "¡Restablecimiento exitoso!",
+        recover: "Recuperación de correo",
+        recovered: "Su correo ha sido restaurado. Redirigiendo..."
+      }
+    };
+
+    // 🔹 Detect language
+    const userLang = (navigator.language || "en").substring(0, 2);
+    const dict = translations[userLang] || translations.en;
+
+    // 🔹 Params
+    const params = new URLSearchParams(window.location.search);
+    const oobCode = params.get("oobCode");
+    const mode = params.get("mode");
+    const box = document.getElementById("statusBox");
+
+    if (!oobCode || !mode) {
+      box.innerHTML = `
+        <h2>${dict.missing}</h2>
+        <p>${dict.noCode}</p>
+        <p><a href="index.html">${dict.back}</a></p>
+      `;
+    } else if (mode === "verifyEmail") {
+      // ✅ Verify email
+      applyActionCode(auth, oobCode)
+        .then(() => {
+          box.innerHTML = `
+            <h2>${dict.success}</h2>
+            <p>${dict.active}</p>
+            <p>Redirecting...</p>
+          `;
+          setTimeout(() => window.location.href = "index.html", 3000);
+        })
+        .catch(() => {
+          box.innerHTML = `
+            <h2>${dict.fail}</h2>
+            <p>${dict.expired}</p>
+            <p><a href="index.html">${dict.back}</a></p>
+          `;
+        });
+    } else if (mode === "resetPassword") {
+      // 🔑 Password reset
+      box.innerHTML = `
+        <h2>${dict.reset}</h2>
+        <p>${dict.newPass}</p>
+        <input type="password" id="newPass" placeholder="********" />
+        <button id="resetBtn">${dict.reset}</button>
+      `;
+      document.getElementById("resetBtn").addEventListener("click", async () => {
+        const newPass = document.getElementById("newPass").value;
+        if (!newPass) return alert(dict.newPass);
+        try {
+          await confirmPasswordReset(auth, oobCode, newPass);
+          box.innerHTML = `
+            <h2>${dict.done}</h2>
+            <p><a href="index.html">${dict.login}</a></p>
+          `;
+        } catch {
+          box.innerHTML = `
+            <h2>${dict.fail}</h2>
+            <p>${dict.expired}</p>
+            <p><a href="index.html">${dict.back}</a></p>
+          `;
+        }
+      });
+    } else if (mode === "recoverEmail") {
+      // 📩 Recover email
+      box.innerHTML = `
+        <h2>${dict.recover}</h2>
+        <p>${dict.recovered}</p>
+      `;
+      setTimeout(() => window.location.href = "index.html", 3000);
+    }
+  </script>
+</body>
+</html>
+

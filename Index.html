@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Truist Bank Limited</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif}
+    body {background:#dcdcdc; color:#333;}
+    header {background:#0a1d3f; color:white; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; position:fixed; width:100%; top:0; z-index:1000}
+    header h1 {cursor:pointer; font-size:1.8rem}
+    nav a {margin-left:25px; font-weight:500; color:white; cursor:pointer}
+    nav a:hover {text-decoration:underline}
+    #langSelect {margin-left:15px; padding:6px 8px; border-radius:6px; border:none}
+    .hero {background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80') no-repeat center/cover; height:600px; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; text-align:center; margin-top:80px}
+    .hero h2 {font-size:3rem; margin-bottom:20px}
+    .hero p {font-size:1.2rem; margin-bottom:30px; max-width:700px}
+    .hero button {background-color:#c49a2f; color:#0a1d3f; border:none; padding:15px 40px; font-size:1rem; font-weight:bold; cursor:pointer; border-radius:5px; transition:0.3s}
+    .hero button:hover {opacity:0.9; transform:scale(1.05)}
+    .section {padding:60px 50px; max-width:1200px; margin:0 auto}
+    .section h3 {font-size:2rem; color:#0a1d3f; margin-bottom:40px}
+    .cards {display:flex; gap:20px; flex-wrap:wrap}
+    .card {flex:1 1 calc(33% - 20px); padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.15); transition:transform 0.3s; cursor:pointer; background:linear-gradient(135deg,#0a1d3f,#142c5c); color:white}
+    .card:hover {transform:translateY(-5px)}
+    .card img {width:100%; border-radius:10px; margin-bottom:15px}
+    .card h4 {margin-bottom:15px; color:#ffba00}
+    .card p {font-size:0.95rem; line-height:1.5}
+    footer {background:#0a1d3f; color:white; padding:50px; display:flex; justify-content:space-between; flex-wrap:wrap}
+    footer div {margin-bottom:20px}
+    footer h4 {margin-bottom:15px; color:#c49a2f}
+    footer p,a {font-size:0.95rem; color:white}
+    #chat-button {position:fixed; bottom:20px; right:20px; background:#c49a2f; color:#0a1d3f; border:none; border-radius:50%; width:60px; height:60px; font-size:24px; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+    #chat-box {position:fixed;bottom:90px;right:20px;width:340px;max-height:500px;background:#0a1d3f;border-radius:12px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.35);z-index:1000}
+    #chat-box header {background:#062a66;color:white;padding:10px;font-weight:bold}
+    #chat-box .messages {flex:1;padding:8px;overflow-y:auto;font-size:0.85rem;color:white}
+    #chat-box input {border:none;border-top:1px solid #ccc;padding:8px;width:100%;outline:none}
+    .overlay {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:2000; justify-content:center; align-items:center}
+    .form-container {background:#0a1d3f; padding:40px; border-radius:12px; width:100%; max-width:420px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); position:relative}
+    .form-container h2 {margin-bottom:25px; color:#c49f2a}
+    .form-container input, .form-container select {width:100%; padding:12px; margin-bottom:15px; border:none; border-radius:8px; font-size:1rem}
+    .form-container button {width:100%; padding:12px; background:#c49a2f; border:none; border-radius:8px; font-weight:bold; color:#0a1d3f; cursor:pointer; font-size:1rem}
+    .form-container button.secondary {background:transparent; color:#ffba00; border:1px solid rgba(255,255,255,0.12); margin-top:8px}
+    .form-container button[disabled] {opacity:0.6; cursor:not-allowed}
+    .form-container p {margin-top:15px; font-size:0.9rem; color:#ddd}
+    .form-container a {color:#ffba00; text-decoration:none}
+    .form-container a:hover {text-decoration:underline}
+    .close-btn {position:absolute; top:10px; right:15px; font-size:1.2rem; color:#fff; cursor:pointer}
+    .toast {position:fixed; top:20px; right:20px; background:#0a1d3f; color:white; padding:15px 20px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.3); opacity:0; transform:translateY(-20px); transition:all 0.4s ease; z-index:3000}
+    .toast.show {opacity:1; transform:translateY(0)}
+    @media(max-width:900px){.cards{flex-direction:column} header{flex-direction:column;align-items:flex-start} nav a{margin-left:0;margin-top:10px}}
+  </style>
+</head>
+<body>  
+  <header>
+    <h1>Truist Bank Limited</h1>
+    <nav>
+      <a href="#" id="loginLink" onclick="switchToLogin(); return false;">Login</a>
+      <a href="#">Accounts</a>
+      <a href="#">Loans</a>
+      <a href="#">Contact</a>
+      <select id="langSelect" aria-label="Choose language">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+      </select>
+    </nav>
+  </header>  
+  <!-- Hero -->  
+  <section class="hero">
+    <h2>Your Trusted Financial Partner</h2>
+    <p>Secure banking solutions, anytime, anywhere. Manage your accounts with confidence.</p>
+    <button id="getStartedBtn">Get Started</button>
+  </section>  
+  <!-- Services -->  
+  <section class="section">
+    <h3>Our Services</h3>
+    <div class="cards">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1581092580490-0c5a6371cc9f?auto=format&fit=crop&w=400&q=80" alt="Checking Accounts">
+        <h4>Checking Accounts</h4>
+        <p>Flexible checking accounts with no hidden fees and easy online management.</p>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1581092580493-1ec3eea0e5c0?auto=format&fit=crop&w=400&q=80" alt="Savings Accounts">
+        <h4>Savings Accounts</h4>
+        <p>Grow your savings with competitive interest rates and secure deposits.</p>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1603791440384-56cd371ee9d0?auto=format&fit=crop&w=400&q=80" alt="ATM Card">
+        <h4>ATM Cards</h4>
+        <p>Manage your ATM cards and transactions securely anytime, anywhere.</p>
+      </div>
+    </div>
+  </section>  
+  <!-- News -->  
+  <section class="section">
+    <h3>Latest News</h3>
+    <div class="cards">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=400&q=80" alt="Mobile App">
+        <h4>New Mobile App Launch</h4>
+        <p>Manage your finances easily with our updated mobile banking app.</p>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80" alt="Secure Banking">
+        <h4>Secure Online Banking</h4>
+        <p>We implemented additional security measures to protect your accounts.</p>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80" alt="Community Support">
+        <h4>Community Support Program</h4>
+        <p>Truist Bank is committed to supporting local communities across the country.</p>
+      </div>
+    </div>
+  </section>  
+  <!-- Footer -->  
+  <footer>
+    <div>
+      <h4>Contact Us</h4>
+      <p>WhatsApp: <a href="https://wa.me/17533393846">+1-753-339-3846</a></p>
+      <p>Email: <a href="mailto:truistbank542@gmail.com">truistbank542@gmail.com</a></p>
+    </div>
+    <div>
+      <h4>Truist Bank Limited</h4>
+      <p>123 Finance Street</p>
+      <p>City, State, ZIP</p>
+      <p>© 2025 All Rights Reserved</p>
+    </div>
+    <div>
+      <h4>Follow Us</h4>
+      <p><a href="#">Facebook</a> | <a href="#">Twitter</a> | <a href="#">LinkedIn</a></p>
+    </div>
+  </footer>  
+
+  <!-- Chat -->
+  <button id="chat-button">💬</button>
+
+  <div id="chat-box" role="region" aria-label="Customer support chat">
+    <header>Customer Support</header>
+    <div class="messages" id="chat-messages">
+      <p>Hello! How can we help you today?</p>
+    </div>
+    <input type="text" id="chat-input" placeholder="Type your message...">
+  </div>  
+
+  <!-- Overlays with full forms -->
+  <div class="overlay" id="registerOverlay" aria-hidden="true">
+    <div class="form-container" role="dialog" aria-labelledby="registerTitle">
+      <span class="close-btn" onclick="switchToNone()">×</span>
+      <h2 id="registerTitle">Create Account</h2>
+      <form id="registerForm">
+        <input id="reg-name" type="text" placeholder="Full Name" required />
+        <input id="reg-email" type="email" placeholder="Email" required />
+        <input id="reg-password" type="password" placeholder="Password (min 6 chars)" required />
+        <input id="reg-password-confirm" type="password" placeholder="Confirm Password" required />
+        <button type="submit" id="registerBtn">Create Account</button>
+        <p>Already have an account? <a href="#" onclick="switchToLogin(); return false;">Login</a></p>
+      </form>
+    </div>
+  </div>  
+
+  <div class="overlay" id="loginOverlay" aria-hidden="true">
+    <div class="form-container" role="dialog" aria-labelledby="loginTitle">
+      <span class="close-btn" onclick="switchToNone()">×</span>
+      <h2 id="loginTitle">Login</h2>
+      <form id="loginForm">
+        <input id="login-email" type="email" placeholder="Email" required />
+        <input id="login-password" type="password" placeholder="Password" required />
+        <button type="submit" id="loginBtn">Login</button>
+        <button id="resendVerificationLink" type="button" class="secondary">Resend verification email</button>
+        <p><a href="#" onclick="switchToForgot(); return false;">Forgot password?</a></p>
+        <p>Don't have an account? <a href="#" onclick="switchToRegister(); return false;">Register</a></p>
+      </form>
+    </div>
+  </div>  
+
+  <div class="overlay" id="forgotOverlay" aria-hidden="true">
+    <div class="form-container" role="dialog" aria-labelledby="forgotTitle">
+      <span class="close-btn" onclick="switchToNone()">×</span>
+      <h2 id="forgotTitle">Reset Password</h2>
+      <form id="forgotForm">
+        <input id="forgot-email" type="email" placeholder="Your registered email" required />
+        <button type="submit" id="forgotBtn">Send reset link</button>
+        <p><a href="#" onclick="switchToLogin(); return false;">Back to Login</a></p>
+      </form>
+    </div>
+  </div>  
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================== FIXED / CLEAN SCRIPT ================== */
+
+/* Firebase SDKs */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  sendPasswordResetEmail, 
+  sendEmailVerification, 
+  signOut, 
+  applyActionCode 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  addDoc,
+  collection,
+  onSnapshot,
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+/* ---------------------------
+   YOUR FIREBASE CONFIG - replace with real values
+----------------------------*/
+const firebaseConfig = {
+  apiKey: "AIzaSyBc6wgX4Pg9BvcjS4A1-0TTdiNZZZ3aDhA",
+  authDomain: "truist-bank-credit-union.firebaseapp.com",
+  projectId: "truist-bank-credit-union",
+  storageBucket: "truist-bank-credit-union.firebasestorage.app",
+  messagingSenderId: "391509149639",
+  appId: "1:391509149639:web:7fe531a08ba121aad97be2",
+  measurementId: "G-J89H6JCNZ1"
+};
+
+const app = initializeApp(firebaseConfig);
+try { getAnalytics(app); } catch(e) { /* analytics optional */ }
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------------------------
+   Small DOM helper
+----------------------------*/
+const $ = (id) => document.getElementById(id);
+
+/* ---------------------------
+   Toast implementation (replaces alert)
+----------------------------*/
+function showToast(msg, ms = 3500) {
+  try {
+    const t = $("toast");
+    if (!t) { console.log("Toast:", msg); return; }
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(()=> t.classList.remove("show"), ms);
+  } catch (e) {
+    // fallback
+    console.log("Toast:", msg);
+    alert(msg);
+  }
+}
+
+/* ---------------------------
+   Overlay helpers (login/register/forgot/none)
+----------------------------*/
+function switchToNone() {
+  document.querySelectorAll('.overlay').forEach(el => {
+    el.style.display = 'none';
+    el.setAttribute('aria-hidden', 'true');
+  });
+}
+function switchToRegister() {
+  switchToNone();
+  const el = $("registerOverlay");
+  if (el) { el.style.display = 'flex'; el.setAttribute('aria-hidden','false'); }
+}
+function switchToLogin() {
+  switchToNone();
+  const el = $("loginOverlay");
+  if (el) { el.style.display = 'flex'; el.setAttribute('aria-hidden','false'); }
+}
+function switchToForgot() {
+  switchToNone();
+  const el = $("forgotOverlay");
+  if (el) { el.style.display = 'flex'; el.setAttribute('aria-hidden','false'); }
+}
+/* expose to inline HTML onclicks (keeps your existing HTML untouched) */
+window.switchToLogin = switchToLogin;
+window.switchToRegister = switchToRegister;
+window.switchToForgot = switchToForgot;
+window.switchToNone = switchToNone;
+
+/* ---------------------------
+   Small helper to build a safe verification URL
+   Ensures mode=verifyEmail is present and avoids accidental double-? issues.
+----------------------------*/
+function buildVerificationUrl() {
+  try {
+    const u = new URL(window.location.href);
+    // set mode param (will overwrite if already present)
+    u.searchParams.set('mode', 'verifyEmail');
+    // keep origin + pathname + search (Firebase will append oobCode)
+    return u.origin + u.pathname + u.search;
+  } catch (e) {
+    // fallback
+    return window.location.origin + window.location.pathname + '?mode=verifyEmail';
+  }
+}
+
+/* ---------------------------
+   Language auto-set (basic)
+----------------------------*/
+const translations = {
+  en: { login: "Login", register: "Register", reset: "Reset Password", welcome: "Welcome" },
+  fr: { login: "Connexion", register: "S'inscrire", reset: "Réinitialiser le mot de passe", welcome: "Bienvenue" },
+  es: { login: "Iniciar sesión", register: "Registrarse", reset: "Restablecer la contraseña", welcome: "Bienvenido" }
+};
+function autoSetLanguage() {
+  const lang = (navigator.language || "en").substring(0,2);
+  const dict = translations[lang] || translations["en"];
+  if ($("loginBtn")) $("loginBtn").textContent = dict.login;
+  if ($("registerBtn")) $("registerBtn").textContent = dict.register;
+  if ($("forgotBtn")) $("forgotBtn").textContent = dict.reset;
+  const select = $("langSelect");
+  if (select) select.value = (dict === translations.es) ? "es" : (dict === translations.fr) ? "fr" : "en";
+}
+$("langSelect")?.addEventListener("change", (e) => {
+  // simple behavior: change button labels immediately
+  autoSetLanguage();
+});
+
+/* ---------------------------
+   Account / card number generation
+----------------------------*/
+function digitsFromString(str, len) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  let s = Math.abs(hash).toString() + Date.now().toString();
+  s = s.replace(/\D/g,'');
+  while (s.length < len) s += Math.floor(Math.random()*10);
+  return s.slice(0,len);
+}
+function luhnGetCheckDigit(numStr) {
+  let sum = 0;
+  const reversed = numStr.split('').reverse();
+  for (let i = 0; i < reversed.length; i++) {
+    let d = parseInt(reversed[i], 10);
+    if (i % 2 === 0) {
+      d = d * 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+  }
+  const check = (10 - (sum % 10)) % 10;
+  return String(check);
+}
+function generateCardNumber(prefix = "4", length = 16) {
+  let base = prefix;
+  while (base.length < length - 1) base += Math.floor(Math.random()*10);
+  const check = luhnGetCheckDigit(base.split('').reverse().join(''));
+  return base + check;
+}
+function generateAccountDetails(uid, name, email) {
+  const baseStr = `${uid}|${name}|${email}|${Date.now()}`;
+  const checking = digitsFromString(baseStr + "CHK", 12);
+  const savings = digitsFromString(baseStr + "SVG", 12);
+  const cardNumber = generateCardNumber("4", 16);
+  const expiry = (() => {
+    const now = new Date();
+    const year = now.getFullYear() + (Math.floor(Math.random()*4) + 2);
+    const month = String(Math.floor(Math.random()*12) + 1).padStart(2, '0');
+    return `${month}/${String(year).slice(-2)}`;
+  })();
+  const cvv = String(Math.floor(Math.random()*900) + 100);
+  return {
+    checking: { number: checking, balance: 0 },
+    savings: { number: savings, balance: 0 },
+    card: { number: cardNumber, expiry, cvv, limit: 2000 }
+  };
+}
+
+/* ---------------------------
+   Registration handler
+----------------------------*/
+$("registerForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = $("reg-name").value.trim();
+  const email = $("reg-email").value.trim();
+  const password = $("reg-password").value;
+  const confirm = $("reg-password-confirm").value;
+
+  if (!name || !email || !password) { showToast("Please fill required fields."); return; }
+  if (password.length < 6) { showToast("Password must be at least 6 characters."); return; }
+  if (password !== confirm) { showToast("Passwords do not match."); return; }
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
+
+    // Create account numbers based on uid/name/email/time
+    const accountsData = generateAccountDetails(user.uid, name, email);
+
+    // Save in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      name,
+      email,
+      createdAt: serverTimestamp(),
+      accounts: accountsData
+    });
+
+    // Send verification email
+    await sendEmailVerification(user, {
+      url: buildVerificationUrl(),
+      handleCodeInApp: true
+    });
+
+    showToast("✅ Account created. Verification email sent — please check your inbox (and spam).");
+    try { await signOut(auth); } catch(e) { /* ignore */ }
+    switchToNone();
+  } catch (err) {
+    console.error(err);
+    showToast("❌ " + (err.message || err.code || "Registration error"));
+  }
+});
+
+/* ---------------------------
+   Login handler
+----------------------------*/
+$("loginForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("login-email").value.trim();
+  const password = $("login-password").value;
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
+    if (!user.emailVerified) {
+      showToast("⚠️ Please verify your email first. Check your inbox or spam.");
+      try { await signOut(auth); } catch(e) {}
+      return;
+    }
+    showToast("✅ Welcome! Redirecting to dashboard...");
+    setTimeout(()=> window.location.href = "dashboard.html", 700);
+  } catch (err) {
+    console.error(err);
+    showToast("❌ " + (err.message || err.code || "Login error"));
+  }
+});
+
+/* ---------------------------
+   Forgot / reset password handler
+----------------------------*/
+$("forgotForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("forgot-email").value.trim();
+  if (!email) { showToast("Please enter your registered email."); return; }
+  try {
+    await sendPasswordResetEmail(auth, email, { url: window.location.origin + "/" });
+    showToast("📩 Reset email sent. Check your inbox (or spam).");
+    switchToNone();
+  } catch (err) {
+    console.error(err);
+    showToast("❌ " + (err.message || err.code || "Reset error"));
+  }
+});
+
+/* ---------------------------
+   Resend verification link button
+----------------------------*/
+$("resendVerificationLink")?.addEventListener("click", async () => {
+  try {
+    const user = auth.currentUser;
+    if (user && !user.emailVerified) {
+      await sendEmailVerification(user, {
+        url: buildVerificationUrl(),
+        handleCodeInApp: true
+      });
+      showToast("✅ Verification email resent. Check your inbox.");
+    } else {
+      showToast("Enter your email/password in the login form and sign in (then you'll be able to resend verification).");
+      switchToLogin();
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("❌ " + (err.message || "Could not resend verification link"));
+  }
+});
+
+/* ---------------------------
+   Handle email verification from the link
+----------------------------*/
+async function handleEmailVerification() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get("mode");
+    const oobCode = urlParams.get("oobCode");
+    if (mode === "verifyEmail" && oobCode) {
+      try {
+        await applyActionCode(auth, oobCode);
+        showToast("✅ Email verified! Redirecting...");
+        if (auth.currentUser && typeof auth.currentUser.reload === "function") {
+          try { await auth.currentUser.reload(); } catch(e) {}
+        }
+        setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+      } catch (error) {
+        console.warn("Verification issue:", error);
+        const code = (error && error.code) || "";
+        if (code.includes("invalid-action-code") || code.includes("email-already-verified") || code.includes("user-disabled")) {
+          showToast("ℹ️ Verification already processed. Redirecting...");
+          setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+        } else {
+          showToast("❌ Verification link invalid or expired.");
+        }
+      }
+    }
+  } catch (e) {
+    console.error("handleEmailVerification error", e);
+  }
+}
+
+/* ---------------------------
+   Chat system (basic)
+----------------------------*/
+function initChat() {
+  const chatButton = $("chat-button");
+  const chatBox = $("chat-box");
+  const chatInput = $("chat-input");
+  const chatMessages = $("chat-messages");
+  if (!chatButton || !chatBox || !chatInput || !chatMessages) return;
+
+  chatButton.addEventListener("click", () => {
+    chatBox.style.display = (chatBox.style.display === "flex") ? "none" : "flex";
+  });
+
+  chatInput.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      try {
+        await addDoc(collection(db, "chats"), {
+          user: auth.currentUser ? auth.currentUser.email : "Guest",
+          text,
+          createdAt: serverTimestamp()
+        });
+        chatInput.value = "";
+      } catch (err) {
+        console.error(err);
+        showToast("❌ " + (err.message || "Failed to send"));
+      }
+    }
+  });
+
+  try {
+    onSnapshot(collection(db, "chats"), (snapshot) => {
+      chatMessages.innerHTML = "";
+      snapshot.docs.forEach(d => {
+        const m = d.data();
+        const p = document.createElement("p");
+        const when = m.createdAt && m.createdAt.toDate ? m.createdAt.toDate().toLocaleString() : "";
+        p.textContent = `${m.user || "Guest"}: ${m.text}${when ? " — " + when : ""}`;
+        chatMessages.appendChild(p);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  } catch (e) {
+    console.warn("chat onSnapshot skipped: ", e);
+  }
+}
+
+/* ---------------------------
+   Small UX connections
+----------------------------*/
+$("getStartedBtn")?.addEventListener("click", (e) => { e.preventDefault(); switchToRegister(); });
+
+/* Close overlays with Escape */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") switchToNone();
+});
+
+/* Clicking outside overlay form closes it */
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', (ev) => {
+    if (ev.target === ov) switchToNone();
+  });
+});
+
+/* ---------------------------
+   Start-up
+----------------------------*/
+document.addEventListener("DOMContentLoaded", () => {
+  autoSetLanguage();
+  handleEmailVerification();
+  initChat();
+});
+</script>
+</body>
+</html>
